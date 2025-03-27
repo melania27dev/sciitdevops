@@ -48,6 +48,7 @@ provisioner "local-exec" {
     ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${self.public_ip}, -u ubuntu --private-key=./scripts/devaws.pem ./scripts/install_k3s.yml -vv
   EOT
 }
+
   # provisioner "remote-exec" {
   #   inline = [
   #     "sudo chmod +x /home/ec2-user/python_web_server.sh",

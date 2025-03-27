@@ -25,7 +25,7 @@ jobs:
         with:
           aws-access-key-id: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           aws-secret-access-key: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          aws-region: 'eu-west-1'
+          aws-region: 'us-east-1'
 
       # Configure AZURE  credentials
       - name: Login to Azure
@@ -43,6 +43,15 @@ jobs:
         with:
           terraform_wrapper: false
 
+#  Add SSH Key from GitHub Secrets
+      - name: Add SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/devazure.pem
+          echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > ./scripts/devazure.pem.pub
+          chmod 600 ~/.ssh/devazure.pem
+          echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" >> ~/.ssh/authorized_keys
+
       - name: Terraform Init
         run: terraform init
 
@@ -57,7 +66,7 @@ jobs:
       #     echo "$INSTANCE_IPS" | jq -r '.[]' > ansible/instance-ips.txt
       #     echo "[servers]" > ansible/inventory.ini
       #     while IFS= read -r ip; do
-      #       echo "$ip ansible_user=devadmin ansible_ssh_private_key_file=./scripts/azure_key.pem" >> ansible/inventory.ini
+      #       echo "$ip ansible_user=devadmin ansible_ssh_private_key_file=./scripts/devazure.pem" >> ansible/inventory.ini
       #     done < ansible/instance-ips.txt
 
       # Save instance IPs and create inventory file for Ansible
@@ -74,7 +83,7 @@ jobs:
 
           # Create inventory.ini
           echo "[servers]" > inventory.ini
-          echo "$IP_LIST ansible_user=devadmin ansible_ssh_private_key_file=./scripts/azure_key.pem" >> inventory.ini
+          echo "$IP_LIST ansible_user=devadmin ansible_ssh_private_key_file=~/.ssh/devazure.pem" >> inventory.ini
 
       # # Wait for SSH to be available
       # - name: Wait for SSH to be available
@@ -92,19 +101,33 @@ jobs:
       #       echo "✅ SSH is available on $ip!"
       #     done
 
-      # #  Add SSH Key from GitHub Secrets
+      #  Add SSH Key from GitHub Secrets
       # - name: Add SSH Key
       #   run: |
       #     mkdir -p ~/.ssh
-      #     echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/azure_key.pem
-      #     chmod 400 ~/.ssh/azure_key.pem
+      #     echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/devazure.pem
+      #     echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > /scripts/devazure.pem.pub
+      #     chmod 400 ~/.ssh/devazure.pem
+      #     echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" >> ~/.ssh/authorized_keys
 
+      - name: Check SSH Key Format
+        run: |
+            sudo apt-get install libssl-dev
+            cat ~/.ssh/devazure.pem
+            openssl rsa -noout -modulus -in ~/.ssh/devazure.pem
+ 
+      - name: Test SSH connection
+        run: |
+              INSTANCE_IP=$(terraform output -json public_ip_address | jq -r 'if type == "string" then . else .[0] end')
+              ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/devazure.pem devadmin@$INSTANCE_IP 'echo Hello from GitHub Actions'
+                
+      #ssh-keygen -l -f ~/.ssh/devazure.pem || echo "Invalid SSH key!"
       # # Test SSH connection
       # - name: Test SSH connection
       #   run: |
-      #     INSTANCE_IP=$(terraform output -json instance_ips | jq -r '.[0]')
+      #     INSTANCE_IP=$(terraform output -json public_ip_address | jq -r '.[0]')
       #     echo "Trying to SSH into $INSTANCE_IP"
-      #     ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/azure_key.pem devadmin@$INSTANCE_IP
+      #     ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/devazure.pem devadmin@$INSTANCE_IP
 
       # Install Ansible
       - name: Install Ansible

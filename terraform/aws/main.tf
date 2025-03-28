@@ -41,13 +41,13 @@ resource "aws_instance" "k3s" {
   #   command = "sleep 90 && ansible_host_key_checking=false ansible-playbook -i ${self.public_ip}, -u ubuntu --private-key=./scripts/devaws.pem ./scripts/install_k3s.yml -vv"
   # }
 
-# provisioner "local-exec" {
-#   command = <<EOT
-#     sleep 90
-#     chmod 400 /home/runner/work/melania27dev/melania27dev/terraform/aws/scripts/devaws.pem
-#     ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${self.public_ip}, -u ubuntu --private-key=./scripts/devaws.pem ./scripts/install_k3s.yml -vv
-#   EOT
-# }
+provisioner "local-exec" {
+  command = <<EOT
+    sleep 90
+    chmod 400 /home/runner/work/melania27dev/melania27dev/terraform/aws/scripts/devaws.pem
+    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${self.public_ip}, -u ubuntu --private-key=./scripts/devaws.pem ./scripts/install_k3s.yml -vv
+  EOT
+}
 
   # provisioner "remote-exec" {
   #   inline = [

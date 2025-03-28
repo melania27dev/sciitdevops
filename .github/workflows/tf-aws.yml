@@ -67,7 +67,10 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/devaws.pem
-          chmod 400 ~/.ssh/devaws.pem
+          chmod 600 ~/.ssh/devaws.pem
+
+      - name: Debug SSH Key
+        run: ls -l ~/.ssh/devaws.pem
 
       # Test SSH connection
       - name: Test SSH connection

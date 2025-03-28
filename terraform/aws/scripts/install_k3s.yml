@@ -256,24 +256,49 @@
         kind: Namespace
         state: present
 
+    # - name: Add Grafana Helm repository
+    #   command: helm repo add grafana https://grafana.github.io/helm-charts
+
+    # - name: Update Helm repositories
+    #   command: helm repo update
+
+    # - name: Install Grafana using Helm
+    #   command: >
+    #     helm install my-grafana grafana/grafana --namespace grafana
+
+    # - name: Wait for Grafana pods to be ready
+    #   command: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=grafana -n grafana --timeout=300s
+
     - name: Add Grafana Helm repository
-      command: helm repo add grafana https://grafana.github.io/helm-charts
+      ansible.builtin.helm:
+        name: grafana
+        repo_url: https://grafana.github.io/helm-charts
+        state: present
 
     - name: Update Helm repositories
-      command: helm repo update
+      ansible.builtin.helm:
+        update_repo_cache: yes
 
     - name: Install Grafana using Helm
-      command: >
-        helm install my-grafana grafana/grafana --namespace grafana
-
-
-
-
-
-
+      ansible.builtin.helm:
+        name: my-grafana
+        chart_ref: grafana/grafana
+        namespace: grafana
+        create_namespace: yes
+        state: present
 
     - name: Wait for Grafana pods to be ready
-      command: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=grafana -n grafana --timeout=300s
+      ansible.builtin.k8s_info:
+        kind: Pod
+        namespace: grafana
+        label_selectors:
+          - "app.kubernetes.io/name=grafana"
+      register: grafana_pods
+
+    - name: Ensure all Grafana pods are ready
+      ansible.builtin.wait_for:
+        timeout: 300
+      when: (grafana_pods.resources | length) == 0
 
     - name: Expose Grafana service via LoadBalancer
       kubernetes.core.k8s:

@@ -279,6 +279,7 @@
       kubernetes.core.helm:
         name: grafana
         update_repo_cache: yes
+        release_namespace: default
 
     - name: Install Grafana using Helm
       kubernetes.core.helm:

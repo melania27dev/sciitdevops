@@ -80,6 +80,6 @@ jobs:
       - name: Install Ansible
         run: sudo apt update && sudo apt install -y ansible
 
-      # Run Ansible Playbook
-      - name: Run Ansible Playbook
-        run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yaml -vvv
+      # # Run Ansible Playbook
+      # - name: Run Ansible Playbook
+      #   run: ansible-playbook -i ansible/inventory.ini ansible/playbook.yaml -vvv

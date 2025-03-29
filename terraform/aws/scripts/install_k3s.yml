@@ -278,6 +278,7 @@
     - name: Update Helm repositories
       kubernetes.core.helm:
         name: grafana
+        chart_ref: grafana/grafana
         update_repo_cache: yes
         release_namespace: default
 

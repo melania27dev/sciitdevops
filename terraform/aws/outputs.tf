@@ -17,7 +17,3 @@ output "security_group_id" {
   description = "The ID of the security group"
   value       = aws_security_group.sg.id
 }
-
-output "instance_ips" {
-  value = aws_instance.K3s-VM[*].54.154.244.2
-}

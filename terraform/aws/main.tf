@@ -25,6 +25,7 @@ resource "aws_instance" "k3s" {
   }
   
     tags = merge(local.common_tags, { Name = "K3s-VM" })
+    
 
   #user_data = file("python_web_server.sh")
   # Use the remote-exec provisioner to run the setup script
@@ -66,6 +67,19 @@ provisioner "local-exec" {
   #     host = self.public_ip
   #   }
  # }
+}
+
+resource "aws_instance" "web" {
+  ami                    = data.aws_ami.ubuntu.id # Ubuntu AMI
+  instance_type          = "t2.micro"
+  availability_zone      = var.public_subnet_az
+  subnet_id              = aws_subnet.public-subnet.id
+  vpc_security_group_ids = [aws_security_group.sg.id]
+  key_name               = data.aws_key_pair.public_key.key_name
+  
+  
+  
+    tags = merge(local.common_tags, { Name = "Web-VM" })
 }
 
 

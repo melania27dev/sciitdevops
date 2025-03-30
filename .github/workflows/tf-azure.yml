@@ -25,7 +25,7 @@ jobs:
         with:
           aws-access-key-id: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           aws-secret-access-key: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          aws-region: 'us-east-1'
+          aws-region: 'eu-west-1'
 
       # Configure AZURE  credentials
       - name: Login to Azure
@@ -133,6 +133,6 @@ jobs:
       - name: Install Ansible
         run: sudo apt update && sudo apt install -y ansible
 
-      #Run Ansible Playbook
-      - name: Run Ansible Playbook
-        run: ansible-playbook -i inventory.ini ./scripts/install_k3s.yml -vvv
+      # #Run Ansible Playbook
+      # - name: Run Ansible Playbook
+      #   run: ansible-playbook -i inventory.ini ./scripts/install_k3s.yml -vvv

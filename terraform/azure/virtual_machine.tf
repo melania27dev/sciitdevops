@@ -32,8 +32,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   admin_ssh_key {
     username   = var.username
-    public_key = trimspace(file("./scripts/devazure.pem.pub"))
-    # public_key = file("./scripts/devazure.pem.pub")
+    public_key = file("./scripts/devazure.pem.pub")
   }
 
   boot_diagnostics {

@@ -30,6 +30,12 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Add SSH Key
+        run: |
+           mkdir -p ~/.ssh
+           echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/devaws.pem
+           chmod 400 ~/.ssh/devaws.pem
+
       - name: Terraform Init
         run: terraform init
 

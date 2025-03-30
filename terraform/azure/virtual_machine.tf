@@ -39,13 +39,13 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
     storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
   }
 
-  # provisioner "local-exec" {
-  #   command = <<EOT
-  #   sleep 90
-  #   chmod 400 ./scripts/devazure.pem
-  #   ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${azurerm_public_ip.my_terraform_public_ip.ip_address}, -u devadmin --private-key=./scripts/devazure.pem ./scripts/install_k3s.yml -vv
-  #   EOT
-  # }
+  provisioner "local-exec" {
+    command = <<EOT
+    sleep 90
+    chmod 400 ./scripts/devazure.pem
+    ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${azurerm_public_ip.my_terraform_public_ip.ip_address}, -u devadmin --private-key=./scripts/devazure.pem ./scripts/install_k3s.yml -vv
+    EOT
+  }
 }
 
 # resource "null_resource" "ansible_playbook" {

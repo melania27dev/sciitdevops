@@ -84,12 +84,12 @@ jobs:
             echo "✅ SSH is available on $ip!"
           done
 
-      #  Add SSH Key from GitHub Secrets
-      - name: Add SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/devaws.pem
-          chmod 400 ~/.ssh/devaws.pem
+      # #  Add SSH Key from GitHub Secrets
+      # - name: Add SSH Key
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/devaws.pem
+      #     chmod 400 ~/.ssh/devaws.pem
 
       # - name: Debug SSH Key
       #   run: ls -l ~/.ssh/devaws.pem
@@ -99,7 +99,7 @@ jobs:
         run: |
           INSTANCE_IP=$(terraform output -json k3s_vm_public_ip | jq -r 'if type == "string" then . else .[0] end')
           echo "Trying to SSH into $INSTANCE_IP"
-          ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/devaws.pem ubuntu@$INSTANCE_IP
+          ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/devaws.pem ubuntu@$INSTANCE_IP
 
       # Install Ansible
       - name: Install Ansible

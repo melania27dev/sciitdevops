@@ -21,10 +21,37 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
-}
+
   # computer_name  = "hostname"
 
 # Create virtual machine
+
+
+  # admin_ssh_key {
+  #   username   = var.username
+  #   public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
+  # }
+  
+  admin_ssh_key {
+    username   = var.username
+    public_key = file("./scripts/devazure.pem.pub")
+  }
+
+  boot_diagnostics {
+    storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
+  }
+}
+
+
+#   provisioner "local-exec" {
+#     command = <<EOT
+#     sleep 90
+#     chmod 400 ./scripts/devazure.pem.pub
+#     ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${azurerm_public_ip.my_terraform_public_ip.ip_address}, -u devadmin --private-key=./scripts/devazure.pem.pub ./scripts/install_k3s.yml -vv
+#     EOT
+#   }
+# }
+
 resource "azurerm_linux_virtual_machine" "my_vm" {
   name                  = "WebApp"
   location              = azurerm_resource_group.rg.location
@@ -46,11 +73,6 @@ resource "azurerm_linux_virtual_machine" "my_vm" {
     version   = "latest"
   }
 
-  # admin_ssh_key {
-  #   username   = var.username
-  #   public_key = azapi_resource_action.ssh_public_key_gen.output.publicKey
-  # }
-
   admin_ssh_key {
     username   = var.username
     public_key = file("./scripts/devazure.pem.pub")
@@ -59,15 +81,7 @@ resource "azurerm_linux_virtual_machine" "my_vm" {
   boot_diagnostics {
     storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
   }
-
-#   provisioner "local-exec" {
-#     command = <<EOT
-#     sleep 90
-#     chmod 400 ./scripts/devazure.pem.pub
-#     ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${azurerm_public_ip.my_terraform_public_ip.ip_address}, -u devadmin --private-key=./scripts/devazure.pem.pub ./scripts/install_k3s.yml -vv
-#     EOT
-#   }
-# }
+}
 
 # resource "null_resource" "ansible_playbook" {
 #   depends_on = [azurerm_linux_virtual_machine.my_terraform_vm]
@@ -95,7 +109,7 @@ resource "azurerm_linux_virtual_machine" "my_vm" {
    
 # }
 
-}
+
 
 
 # # Create virtual machine

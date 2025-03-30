@@ -21,9 +21,30 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
-
+}
   # computer_name  = "hostname"
 
+# Create virtual machine
+resource "azurerm_linux_virtual_machine" "my_vm" {
+  name                  = "WebApp"
+  location              = azurerm_resource_group.rg.location
+  resource_group_name   = azurerm_resource_group.rg.name
+  network_interface_ids = [azurerm_network_interface.my_terraform_nic_2.id]
+  size                  = "Standard_DS1_v2"
+  admin_username        = var.username
+
+  os_disk {
+    name                 = "myOsDisk_Web"
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
 
   # admin_ssh_key {
   #   username   = var.username

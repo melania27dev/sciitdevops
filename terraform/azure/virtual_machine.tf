@@ -74,7 +74,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
    
 # }
 
-
+}
 
 
 # # Create virtual machine

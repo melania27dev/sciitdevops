@@ -24,7 +24,7 @@ variable "prefix" {
 
 variable "resource_group_location" {
   type        = string
-  default     = "East US"
+  default     = "West Europe"
   description = "Location of the resource group."
 }
 

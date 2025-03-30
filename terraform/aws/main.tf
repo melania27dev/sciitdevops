@@ -13,7 +13,7 @@ resource "aws_internet_gateway" "net-igw" {
 
 resource "aws_instance" "k3s" {
   ami                    = data.aws_ami.ubuntu.id # Ubuntu AMI
-  instance_type          = "t3.medium"
+  instance_type          = "t3a.medium"
   availability_zone      = var.public_subnet_az
   subnet_id              = aws_subnet.public-subnet.id
   vpc_security_group_ids = [aws_security_group.sg.id]

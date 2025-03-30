@@ -50,7 +50,7 @@ jobs:
           echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/devazure.pem
           echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" > ./scripts/devazure.pem.pub
           chmod 600 ~/.ssh/devazure.pem
-          echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" >> ~/.ssh/authorized_keys
+          echo "${{ secrets.AZURE_SSH_PUBLIC_KEY }}" >> ~/.ssh/devazure.pem
 
       - name: Terraform Init
         run: terraform init
@@ -133,6 +133,6 @@ jobs:
       - name: Install Ansible
         run: sudo apt update && sudo apt install -y ansible
 
-      #Run Ansible Playbook
+      Run Ansible Playbook
       - name: Run Ansible Playbook
         run: ansible-playbook -i inventory.ini ./scripts/install_k3s.yml -vvv

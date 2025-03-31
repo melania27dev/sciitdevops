@@ -222,10 +222,31 @@
       ansible.builtin.shell: |
         sudo ufw allow 8080/tcp
         sudo ufw reload
+    
+    - name: SSH key generated on Jenkins
+      ansible.builtin.openssh_keypair:
+        path: "/var/lib/jenkins/.ssh/id_rsa"
+        size: 4096
+        type: rsa
+        state: present
+        owner: jenkins
+        group: jenkins
 
-    - name: Get Jenkins admin password
-      command: kubectl -n jenkins get secret jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
-      register: jenkins_admin_password
+    - name: Add public key on WebVM
+      ansible.builtin.authorized_key:
+        user: devadmin  
+        state: present
+        key: "{{ lookup('file', '/var/lib/jenkins/.ssh/id_rsa.pub') }}"
+
+    - name: Test the SSH connection between Jenkins and WebVM
+      ansible.builtin.command:
+        cmd: "ssh -i /var/lib/jenkins/.ssh/id_rsa devadmin@{{ web_server_ip }} 'echo SSH OK'"
+      register: ssh_test_result
+      ignore_errors: yes
+
+    - name: Print SSH test result
+      ansible.builtin.debug:
+        msg: "{{ ssh_test_result.stdout }}"
 
     - name: Create Jenkins pipeline
       become: true

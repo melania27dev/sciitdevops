@@ -215,6 +215,33 @@
                 operator: "Equal"
                 value: "true"
                 effect: "NoSchedule"
+     
+      #Test jenkins nssg
+    - name: Allow Jenkins through firewall
+      become: true
+      ansible.builtin.shellL: |
+        sudo ufw allow 8080/tcp
+        sudo ufw reload
+
+    - name: Create Jenkins pipeline
+      become: true
+      ansible.builtin.shell: |
+        cat <<EOF | java -jar /var/lib/jenkins/jenkins-cli.jar -s http://localhost:8080/ create-job DeployPythonApp
+        <project>
+          <actions/>
+          <description>Pipeline for deploying Python WebApp</description>
+          <keepDependencies>false</keepDependencies>
+          <properties/>
+          <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition">
+            <script>$(cat /home/ubuntu/pipeline.groovy)</script>
+            <sandbox>true</sandbox>
+          </definition>
+          <triggers/>
+        </project>
+        EOF
+      environment:
+        JENKINS_USER: admin
+        JENKINS_PASSWORD: "{{ lookup('file', '/home/ubuntu/jenkins_admin_password') }}"
 
 
     - name: Add Prometheus Helm repository

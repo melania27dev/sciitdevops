@@ -136,3 +136,20 @@ jobs:
       #Run Ansible Playbook
       - name: Run Ansible Playbook
         run: ansible-playbook -i inventory.ini ./scripts/install_k3s.yml -vvv
+
+      #Test jenkins
+      # Adaugă firewall rule pentru Jenkins
+      - name: Allow Jenkins in firewall
+        run: |
+          az network nsg rule create --resource-group myResourceGroup --nsg-name myNSG --name AllowJenkins --priority 1001 --destination-port-ranges 8080 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes '*'
+    
+      - name: Get K3s VM IP
+        run: echo "K3S_VM_IP=$(cat ip_k3s.txt)" >> $GITHUB_ENV
+        
+      # Deployează pipeline-ul în Jenkins
+      - name: Deploy pipeline to Jenkins
+        run: |
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > devazure.pem
+          chmod 400 devazure.pem
+          scp -o StrictHostKeyChecking=no -i devazure.pem ./scripts/pipeline.groovy devadmin@${{ env.K3S_VM_IP }}:/home/devadmin/
+          ssh -o StrictHostKeyChecking=no -i devazure.pem devadmin@${{ env.K3S_VM_IP }} "java -jar /var/lib/jenkins/jenkins-cli.jar -s http://localhost:8080/ create-job DeployPythonApp < /home/azureuser/pipeline.groovy"

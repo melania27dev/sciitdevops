@@ -209,65 +209,7 @@
               automated:
                 selfHeal: true
                 prune: true
-            #Added tolerations section below to allow Jenkins to be scheduled on tainted nodes
-            tolerations:
-              - key: "node-role.kubernetes.io/worker"
-                operator: "Equal"
-                value: "true"
-                effect: "NoSchedule"
-     
-      #Test jenkins nssg
-    - name: Allow Jenkins through firewall
-      become: true
-      ansible.builtin.shell: |
-        sudo ufw allow 8080/tcp
-        sudo ufw reload
-    
-    - name: SSH key generated on Jenkins
-      ansible.builtin.openssh_keypair:
-        path: "/var/lib/jenkins/.ssh/id_rsa"
-        size: 4096
-        type: rsa
-        state: present
-        owner: jenkins
-        group: jenkins
-
-    - name: Add public key on WebVM
-      ansible.builtin.authorized_key:
-        user: devadmin  
-        state: present
-        key: "{{ lookup('file', '/var/lib/jenkins/.ssh/id_rsa.pub') }}"
-
-    - name: Test the SSH connection between Jenkins and WebVM
-      ansible.builtin.command:
-        cmd: "ssh -i /var/lib/jenkins/.ssh/id_rsa devadmin@{{ web_server_ip }} 'echo SSH OK'"
-      register: ssh_test_result
-      ignore_errors: yes
-
-    - name: Print SSH test result
-      ansible.builtin.debug:
-        msg: "{{ ssh_test_result.stdout }}"
-
-    - name: Create Jenkins pipeline
-      become: true
-      ansible.builtin.shell: |
-        cat <<EOF | java -jar /var/lib/jenkins/jenkins-cli.jar -s http://localhost:8080/ create-job DeployPythonApp
-        <project>
-          <actions/>
-          <description>Pipeline for deploying Python WebApp</description>
-          <keepDependencies>false</keepDependencies>
-          <properties/>
-          <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition">
-            <script>$(cat /home/ubuntu/pipeline.groovy)</script>
-            <sandbox>true</sandbox>
-          </definition>
-          <triggers/>
-        </project>
-        EOF
-      environment:
-        JENKINS_USER: admin
-        JENKINS_PASSWORD: "{{ lookup('file', '/home/ubuntu/jenkins_admin_password') }}"
-
+          
 
     - name: Add Prometheus Helm repository
       command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts

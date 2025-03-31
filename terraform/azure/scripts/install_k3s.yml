@@ -209,6 +209,12 @@
               automated:
                 selfHeal: true
                 prune: true
+            #Added tolerations section below to allow Jenkins to be scheduled on tainted nodes
+            tolerations:
+              - key: "node-role.kubernetes.io/worker"
+                operator: "Equal"
+                value: "true"
+                effect: "NoSchedule"
 
 
     - name: Add Prometheus Helm repository

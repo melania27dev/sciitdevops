@@ -219,7 +219,7 @@
       #Test jenkins nssg
     - name: Allow Jenkins through firewall
       become: true
-      ansible.builtin.shellL: |
+      ansible.builtin.shell: |
         sudo ufw allow 8080/tcp
         sudo ufw reload
 

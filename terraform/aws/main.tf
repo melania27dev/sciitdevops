@@ -19,6 +19,11 @@ resource "aws_instance" "k3s" {
   vpc_security_group_ids = [aws_security_group.sg.id]
   key_name               = data.aws_key_pair.public_key.key_name
   
+ root_block_device {
+    volume_size = 20  # Setează 20GB pentru root volume
+    volume_type = "gp3"
+  }
+
     tags = merge(local.common_tags, { Name = "K3s-VM" })
     
 

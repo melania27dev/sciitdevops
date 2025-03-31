@@ -81,15 +81,6 @@ resource "azurerm_linux_virtual_machine" "my_vm" {
   boot_diagnostics {
     storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
   }
-
-
-  provisioner "local-exec" {
-    command = <<EOT
-      sleep 90
-      chmod 400 ~/.ssh/devazure.pem
-      ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook -i ${azurerm_public_ip.my_terraform_public_ip_2.ip_address}, -u ${var.username} --private-key=~/.ssh/devazure.pem
-    EOT
-  }
 }
 
 # resource "null_resource" "ansible_playbook" {

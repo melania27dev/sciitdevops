@@ -223,6 +223,10 @@
         sudo ufw allow 8080/tcp
         sudo ufw reload
 
+    - name: Get Jenkins admin password
+      command: kubectl -n jenkins get secret jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
+      register: jenkins_admin_password
+
     - name: Create Jenkins pipeline
       become: true
       ansible.builtin.shell: |
